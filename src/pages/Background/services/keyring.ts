@@ -387,6 +387,7 @@ export default class KeyringService extends BaseService<Events> {
     context?: any
   ): Promise<UserOperationStruct> => {
     const keyring = this.keyrings[address];
+    console.log('createUnsignedUserOp', {address, transaction, context})
     const userOp = await resolveProperties(
       await keyring.createUnsignedUserOpWithContext(
         {
@@ -404,6 +405,7 @@ export default class KeyringService extends BaseService<Events> {
         context
       )
     );
+    console.log('userOp before', userOp)
 
     userOp.nonce = ethers.BigNumber.from(userOp.nonce).toHexString();
     userOp.callGasLimit = ethers.BigNumber.from(
@@ -430,7 +432,7 @@ export default class KeyringService extends BaseService<Events> {
       gasParameters?.callGasLimit
     );
     const estimateVerificationGasLimit = ethers.BigNumber.from(
-      gasParameters?.verificationGas
+      (gasParameters as any).verificationGasLimit
     );
     const estimatePreVerificationGas = ethers.BigNumber.from(
       gasParameters?.preVerificationGas
@@ -453,6 +455,8 @@ export default class KeyringService extends BaseService<Events> {
     )
       ? estimatePreVerificationGas.toHexString()
       : userOp.preVerificationGas;
+
+    console.log('userOp after', userOp)
 
     return userOp;
   };
