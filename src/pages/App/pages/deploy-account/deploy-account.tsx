@@ -24,11 +24,12 @@ import AccountInfo from '../../components/account-info';
 import Header from '../../components/header';
 import { useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
-import { useProvider } from 'wagmi';
+import { erc20ABI, useContractRead, useProvider } from 'wagmi';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import getEthereumGlobal from '../../../../helpers/getEthereumGlobal';
 import ensureError from '../../../../helpers/ensureError';
+import exconfig from '../../../../exconfig';
 
 const DeployAccount = () => {
   const navigate = useNavigate();
@@ -44,6 +45,14 @@ const DeployAccount = () => {
       address: activeAccount || '',
     })
   );
+
+
+  const { data: payTokenBalance } = useContractRead({
+    address: exconfig.legacyTokenPaymaster_address as any,
+    abi: erc20ABI,
+    functionName: 'balanceOf',
+    args: [activeAccount as any],
+  })
 
   const walletDeployed: boolean = useMemo(
     () => (accountData === 'loading' ? false : accountData.accountDeployed),
@@ -87,11 +96,11 @@ const DeployAccount = () => {
           accountData.balances[activeNetwork.baseAsset.symbol].assetAmount
             .amount
         )
-        .lte(minimumRequiredFundsPrice)
+        .lte(minimumRequiredFundsPrice) && (ethers.BigNumber.from(payTokenBalance)).eq(0)
     )
       return true;
     return false;
-  }, [accountData, activeNetwork, minimumRequiredFundsPrice]);
+  }, [accountData, activeNetwork, minimumRequiredFundsPrice, payTokenBalance]);
 
   useEffect(() => {
     if (!isButtonDisabled) return;

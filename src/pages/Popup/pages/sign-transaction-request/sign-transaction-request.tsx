@@ -67,6 +67,11 @@ const SignTransactionRequest = (): ReactElement => {
 
   const onCompletePreTransactionConfirmation = useCallback(
     async (modifiedTransaction?: EthersTransactionRequest, context?: any) => {
+      console.log(
+        'onCompletePreTransactionConfirmation',
+        modifiedTransaction,
+        context
+      );
       if (!activeAccount) return;
       backgroundDispatch(
         createUnsignedUserOp({ address: activeAccount, context })
@@ -90,6 +95,7 @@ const SignTransactionRequest = (): ReactElement => {
 
   const onCompleteTransactionConfirmation = useCallback(
     async (context?: any) => {
+      console.log('onCompleteTransactionConfirmation', context);
       setStage({
         stage: 'post-transaction-confirmation',
         context,

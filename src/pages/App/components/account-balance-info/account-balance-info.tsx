@@ -11,10 +11,25 @@ import {
 import { getAccountEVMData } from '../../../Background/redux-slices/selectors/accountSelectors';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import exconfig from '../../../../exconfig';
+import { erc20ABI, useContractRead } from 'wagmi';
+import { ethers } from 'ethers';
 
 const AccountBalanceInfo = ({ address }: { address: string }) => {
   const navigate = useNavigate();
   const activeNetwork = useBackgroundSelector(getActiveNetwork);
+  const { data: payTokenBalance } = useContractRead({
+    address: exconfig.legacyTokenPaymaster_address as any,
+    abi: erc20ABI,
+    functionName: 'balanceOf',
+    args: [address as any],
+  });
+  const { data: payTokenSymbol } = useContractRead({
+    address: exconfig.legacyTokenPaymaster_address as any,
+    abi: erc20ABI,
+    functionName: 'symbol',
+  });
+
   const accountData: AccountData | 'loading' = useBackgroundSelector((state) =>
     getAccountEVMData(state, { address, chainId: activeNetwork.chainID })
   );
@@ -50,6 +65,12 @@ const AccountBalanceInfo = ({ address }: { address: string }) => {
             {activeNetwork.baseAsset.symbol}
           </Typography>
         )}
+      {accountData !== 'loading' && payTokenBalance && payTokenSymbol && (
+        <Typography variant="h3">
+          {Number(ethers.utils.formatEther(payTokenBalance)).toFixed(7)}{' '}
+          {payTokenSymbol}
+        </Typography>
+      )}
       <Tooltip
         title={
           walletDeployed

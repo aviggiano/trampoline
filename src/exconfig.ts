@@ -5,6 +5,7 @@ export default {
   enablePasswordEncryption: false,
   showTransactionConfirmationScreen: true,
   factory_address: '0x8c35464a19Dd798F6f3986b9b2a31FC4E558C181',
+  legacyTokenPaymaster_address: '0x6C1673e5c56C32b87e2662F285EFaf515026d9FA',
   stateVersion: '0.1',
   network: {
     chainID: '31337',
